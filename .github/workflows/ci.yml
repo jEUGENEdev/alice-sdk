@@ -12,14 +12,19 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v1
-      - name: prepare server
+      - name: apt update
+        run: sudo apt update
+      - name: remove prev sdk
         run: |
-          sudo apt update
           sudo apt autoremove openjdk*
+          sudo apt autoremove java*
+      - name: install jdk17
+        run: |
           sudo apt install openjdk-${{ env.JDK_V }}-jdk
           echo "-------------------------JDK---------------------------"
           java -version
           echo "-----------------------VERSION-------------------------"
-          sudo apt install maven
+      - name: install maven
+        run: sudo apt install maven
       - name: run maven test
         run: mvn test
