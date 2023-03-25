@@ -15,6 +15,7 @@ jobs:
       - name: prepare server
         run: |
           sudo apt update
+          sudo apt autoremove openjdk*
           sudo apt install openjdk-${{ env.JDK_V }}-jdk
           echo "-------------------------JDK---------------------------"
           java -version
