@@ -12,9 +12,11 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v1
-      - name: prepare server
-        run: |
-          sudo apt install openjdk-${{ env.JDK_V }}-jdk
-          sudo apt install maven
+      - name: install java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+      - name: install maven
+        run: sudo apt install maven
       - name: run maven test
         run: mvn test
