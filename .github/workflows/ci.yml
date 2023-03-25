@@ -26,5 +26,7 @@ jobs:
           echo "-----------------------VERSION-------------------------"
       - name: install maven
         run: sudo apt install maven
+      - name: terminal reload
+        run: sudo reboot
       - name: run maven test
         run: mvn test
