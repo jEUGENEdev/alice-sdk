@@ -14,8 +14,9 @@ jobs:
         uses: actions/checkout@v1
       - name: prepare server
         run: |
-          sudo apt update
-          sudo apt install openjdk-${{ env.JDK_V }}-jdk
-          sudo apt install maven
+          apt update
+          apt install openjdk-${{ env.JDK_V }}-jdk
+          java -version
+          apt install maven
       - name: run maven test
         run: mvn test
