@@ -6,25 +6,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 
 public class Request {
-    private String command, type;
+    private String command, type, signature;
     private JsonNode payload;
-    @JsonProperty("original_utterance") private String originalUtterance;
+    @JsonProperty("original_utterance")
+    private String originalUtterance;
     private Markup markup;
     private NLU nlu;
     private Error error;
-
-    public Request() {
-    }
-
-    public Request(String command, String type, JsonNode payload, String originalUtterance, Markup markup, NLU nlu, Error error) {
-        this.command = command;
-        this.type = type;
-        this.payload = payload;
-        this.originalUtterance = originalUtterance;
-        this.markup = markup;
-        this.nlu = nlu;
-        this.error = error;
-    }
+    @JsonProperty("purchase_request_id") private String purchaseRequestId;
+    @JsonProperty("purchase_token") private String purchaseToken;
+    @JsonProperty("order_id") private String orderId;
+    @JsonProperty("purchase_timestamp") private long purchaseTimestamp;
+    @JsonProperty("signed_data") private String signedData;
+    @JsonProperty("purchase_payload") private PurchasePayload purchasePayload;
 
     public String getCommand() {
         return command;
@@ -32,6 +26,10 @@ public class Request {
 
     public String getType() {
         return type;
+    }
+
+    public String getSignature() {
+        return signature;
     }
 
     public String getPayload() {
@@ -52,6 +50,30 @@ public class Request {
 
     public Error getError() {
         return error;
+    }
+
+    public String getPurchaseRequestId() {
+        return purchaseRequestId;
+    }
+
+    public String getPurchaseToken() {
+        return purchaseToken;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public long getPurchaseTimestamp() {
+        return purchaseTimestamp;
+    }
+
+    public String getSignedData() {
+        return signedData;
+    }
+
+    public PurchasePayload getPurchasePayload() {
+        return purchasePayload;
     }
 
     @Override
@@ -88,7 +110,8 @@ public class Request {
     }
 
     static class Markup {
-        @JsonProperty("dangerous_context") private boolean dangerousContext;
+        @JsonProperty("dangerous_context")
+        private boolean dangerousContext;
 
         public Markup() {
         }
@@ -206,6 +229,21 @@ public class Request {
                             '}';
                 }
             }
+        }
+    }
+
+    static class PurchasePayload {
+        private JsonNode value;
+
+        public String getValue() {
+            return value.toString();
+        }
+
+        @Override
+        public String toString() {
+            return "PurchasePayload{" +
+                    "value=" + value +
+                    '}';
         }
     }
 }

@@ -103,4 +103,32 @@ public class RequestTest {
         System.out.println(request);
         Assertions.assertEquals("AudioPlayer.PlaybackStopped", request.getType());
     }
+
+    @Test
+    public void forTypePurchaseConfirmation() throws JsonProcessingException {
+        Request request = getRequest("{\"request\": {\"type\": \"Purchase.Confirmation\",\"purchase_request_id\": \"d432de19be8347d09f656d9fe966e2f9\",\"purchase_token\": \"token_value\",\"order_id\": \"eeb59d64-9e6a-11ea-bb37-0242ac130002\",\"purchase_timestamp\": 1590399311,\"purchase_payload\": {\"value\": \"payload\"},\"signed_data\": \"purchase_request_id=id_value&purchase_token=token_value&order_id=id_value&...\",\"signature\": \"Pi6JNCFeeleRa...\"}}");
+        System.out.println(request);
+        Assertions.assertArrayEquals(
+                new String[] {
+                        "Purchase.Confirmation",
+                        "d432de19be8347d09f656d9fe966e2f9",
+                        "token_value",
+                        "eeb59d64-9e6a-11ea-bb37-0242ac130002",
+                        "1590399311",
+                        "\"payload\"",
+                        "purchase_request_id=id_value&purchase_token=token_value&order_id=id_value&...",
+                        "Pi6JNCFeeleRa..."
+                },
+                new String[] {
+                        request.getType(),
+                        request.getPurchaseRequestId(),
+                        request.getPurchaseToken(),
+                        request.getOrderId(),
+                        request.getPurchaseTimestamp() + "",
+                        request.getPurchasePayload().getValue(),
+                        request.getSignedData(),
+                        request.getSignature()
+                }
+        );
+    }
 }
