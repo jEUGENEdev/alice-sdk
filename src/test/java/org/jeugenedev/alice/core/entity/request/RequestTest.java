@@ -9,11 +9,14 @@ import org.junit.jupiter.api.Test;
 public class RequestTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private Request getRequest(String testJson) throws JsonProcessingException {
+        JsonNode root = objectMapper.readTree(testJson);
+        return objectMapper.treeToValue(root.get("request"), Request.class);
+    }
+
     @Test
     public void serializationFromJSONToPOJOShouldNotThrowExceptionForSimpleUtteranceType() throws JsonProcessingException {
-        String jsonTest = "{\"request\":{\"command\":\"закажипиццунаулицульватолстого16назавтра\",\"original_utterance\":\"закажипиццунаулицульватолстого,16назавтра\",\"markup\":{\"dangerous_context\":true},\"payload\":{},\"nlu\":{\"tokens\":[\"закажи\",\"пиццу\",\"на\",\"льва\",\"толстого\",\"16\",\"на\",\"завтра\"],\"entities\":[{\"tokens\":{\"start\":2,\"end\":6},\"type\":\"YANDEX.GEO\",\"value\":{\"house_number\":\"16\",\"street\":\"льватолстого\"}},{\"tokens\":{\"start\":3,\"end\":5},\"type\":\"YANDEX.FIO\",\"value\":{\"first_name\":\"лев\",\"last_name\":\"толстой\"}},{\"tokens\":{\"start\":5,\"end\":6},\"type\":\"YANDEX.NUMBER\",\"value\":16},{\"tokens\":{\"start\":6,\"end\":8},\"type\":\"YANDEX.DATETIME\",\"value\":{\"day\":1,\"day_is_relative\":true}}],\"intents\":{}},\"type\":\"SimpleUtterance\"}}";
-        JsonNode root = objectMapper.readTree(jsonTest);
-        Request request = objectMapper.treeToValue(root.get("request"), Request.class);
+        Request request = getRequest("{\"request\":{\"command\":\"закажипиццунаулицульватолстого16назавтра\",\"original_utterance\":\"закажипиццунаулицульватолстого,16назавтра\",\"markup\":{\"dangerous_context\":true},\"payload\":{},\"nlu\":{\"tokens\":[\"закажи\",\"пиццу\",\"на\",\"льва\",\"толстого\",\"16\",\"на\",\"завтра\"],\"entities\":[{\"tokens\":{\"start\":2,\"end\":6},\"type\":\"YANDEX.GEO\",\"value\":{\"house_number\":\"16\",\"street\":\"льватолстого\"}},{\"tokens\":{\"start\":3,\"end\":5},\"type\":\"YANDEX.FIO\",\"value\":{\"first_name\":\"лев\",\"last_name\":\"толстой\"}},{\"tokens\":{\"start\":5,\"end\":6},\"type\":\"YANDEX.NUMBER\",\"value\":16},{\"tokens\":{\"start\":6,\"end\":8},\"type\":\"YANDEX.DATETIME\",\"value\":{\"day\":1,\"day_is_relative\":true}}],\"intents\":{}},\"type\":\"SimpleUtterance\"}}");
         System.out.println(request);
         Assertions.assertArrayEquals(
                 new String[] {
@@ -43,5 +46,61 @@ public class RequestTest {
                         request.getType()
                 }
         );
+    }
+
+    @Test
+    public void forTypeButtonPressed() throws JsonProcessingException {
+        Request request = getRequest("{\"request\": {\"nlu\": {\"tokens\": [\"надпись\",\"на\",\"кнопке\"],\"entities\": [],\"intents\": {}},\"payload\": {},\"type\": \"ButtonPressed\"}}");
+        System.out.println(request);
+        Assertions.assertArrayEquals(
+                new String[] {
+                        null,
+                        null,
+                        "ButtonPressed",
+                        "надпись на кнопке",
+                        "true",
+                        "{}"
+                },
+                new String[] {
+                        request.getCommand(),
+                        request.getOriginalUtterance(),
+                        request.getType(),
+                        String.join(" ", request.getNlu().getTokens()),
+                        request.getNlu().getEntities().isEmpty() + "",
+                        request.getNlu().getIntents()
+                }
+        );
+    }
+
+    @Test
+    public void forTypePlaybackFailed() throws JsonProcessingException {
+        Request request = getRequest("{\"request\": {\"type\": \"AudioPlayer.PlaybackFailed\",\"error\": {\"message\" : \"fail details\",\"type\": \"MEDIA_ERROR_UNKNOWN\"}}}");
+        System.out.println(request);
+        Assertions.assertArrayEquals(
+                new String[] {
+                        "AudioPlayer.PlaybackFailed",
+                        "fail details",
+                        "MEDIA_ERROR_UNKNOWN"
+                },
+                new String[] {
+                        request.getType(),
+                        request.getError().getMessage(),
+                        request.getError().getType()
+                }
+        );
+    }
+
+    @Test
+    public void forTypePlaybackNearlyFinished() throws JsonProcessingException {
+        Request request = getRequest("{\"request\": {\"type\": \"AudioPlayer.PlaybackNearlyFinished\"}}");
+        System.out.println(request);
+        Assertions.assertEquals("AudioPlayer.PlaybackNearlyFinished", request.getType());
+    }
+
+    @Test
+    public void forTypePlaybackStopped() throws JsonProcessingException {
+        Request request = getRequest("{\"request\": {\"type\": \"AudioPlayer.PlaybackStopped\"}}");
+        System.out.println(request);
+        Assertions.assertEquals("AudioPlayer.PlaybackStopped", request.getType());
     }
 }

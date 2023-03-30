@@ -11,17 +11,19 @@ public class Request {
     @JsonProperty("original_utterance") private String originalUtterance;
     private Markup markup;
     private NLU nlu;
+    private Error error;
 
     public Request() {
     }
 
-    public Request(String command, String type, JsonNode payload, String originalUtterance, Markup markup, NLU nlu) {
+    public Request(String command, String type, JsonNode payload, String originalUtterance, Markup markup, NLU nlu, Error error) {
         this.command = command;
         this.type = type;
         this.payload = payload;
         this.originalUtterance = originalUtterance;
         this.markup = markup;
         this.nlu = nlu;
+        this.error = error;
     }
 
     public String getCommand() {
@@ -48,16 +50,41 @@ public class Request {
         return nlu;
     }
 
+    public Error getError() {
+        return error;
+    }
+
     @Override
     public String toString() {
         return "Request{" +
                 "command='" + command + '\'' +
                 ", type='" + type + '\'' +
-                ", payload='" + payload + '\'' +
+                ", payload=" + payload +
                 ", originalUtterance='" + originalUtterance + '\'' +
                 ", markup=" + markup +
                 ", nlu=" + nlu +
+                ", error=" + error +
                 '}';
+    }
+
+    static class Error {
+        private String message, type;
+
+        public String getMessage() {
+            return message;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        @Override
+        public String toString() {
+            return "Error{" +
+                    "message='" + message + '\'' +
+                    ", type='" + type + '\'' +
+                    '}';
+        }
     }
 
     static class Markup {
