@@ -2,6 +2,8 @@ package org.jeugenedev.alice;
 
 import com.sun.net.httpserver.HttpServer;
 import org.jeugenedev.alice.core.server.Initializer;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Logger;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -16,6 +18,7 @@ public final class Alice {
     private final HttpServer server;
     private OnStartListener onStartListener = server -> {};
     private OnStopListener onStopListener = server -> {};
+    private final Logger serverLogger = (Logger) LoggerFactory.getLogger("Alice Server");
 
     private static Alice instance;
 
@@ -27,17 +30,31 @@ public final class Alice {
     }
 
     private Alice(int serverPort) throws IOException {
+        this.getServerLogger().info("""
+                Initialization Alice Server
+                █▀▀▄ █▀▀ ▀█─█▀ ── █▀▀ █──█ █▀▀▀ █▀▀ █▀▀▄ █▀▀ ─ █▀▀█ █──█\s
+                █──█ █▀▀ ─█▄█─ ▀▀ █▀▀ █──█ █─▀█ █▀▀ █──█ █▀▀ ▄ █▄▄▀ █──█\s
+                ▀▀▀─ ▀▀▀ ──▀── ── ▀▀▀ ─▀▀▀ ▀▀▀▀ ▀▀▀ ▀──▀ ▀▀▀ █ ▀─▀▀ ─▀▀▀
+                ░█████╗░██╗░░░░░██╗░█████╗░███████╗░░░░░░░██████╗██████╗░██╗░░██╗
+                ██╔══██╗██║░░░░░██║██╔══██╗██╔════╝░░░░░░██╔════╝██╔══██╗██║░██╔╝
+                ███████║██║░░░░░██║██║░░╚═╝█████╗░░█████╗╚█████╗░██║░░██║█████═╝░
+                ██╔══██║██║░░░░░██║██║░░██╗██╔══╝░░╚════╝░╚═══██╗██║░░██║██╔═██╗░
+                ██║░░██║███████╗██║╚█████╔╝███████╗░░░░░░██████╔╝██████╔╝██║░╚██╗
+                ╚═╝░░╚═╝╚══════╝╚═╝░╚════╝░╚══════╝░░░░░░╚═════╝░╚═════╝░╚═╝░░╚═╝""");
         this.server = HttpServer.create(new InetSocketAddress("127.0.0.1", serverPort), 0);
         Initializer.addDefaultContext(this.server);
     }
 
     public void start() {
         server.start();
+        getServerLogger().info("Alice Server has been started.");
         this.onStartListener.start(this.server);
+        getServerLogger().info("The onstart event was executed.");
     }
 
     public void stop(int delay) {
         server.stop(delay);
+        getServerLogger().info("Alice Server has been stopped.");
         this.onStopListener.stop(this.server);
     }
 
@@ -47,6 +64,10 @@ public final class Alice {
 
     public void setOnStopListener(OnStopListener onStopListener) {
         this.onStopListener = onStopListener;
+    }
+
+    public Logger getServerLogger() {
+        return serverLogger;
     }
 
     interface OnStartListener {

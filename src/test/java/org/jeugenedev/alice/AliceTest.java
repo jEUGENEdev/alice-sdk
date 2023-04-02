@@ -41,5 +41,6 @@ public class AliceTest {
             server.stop(10);
         });
         alice.setOnStopListener(server -> Assertions.assertEquals(postData.get(), thisData.get()));
+        alice.start();
     }
 }
