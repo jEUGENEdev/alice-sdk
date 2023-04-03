@@ -1,7 +1,7 @@
 package org.jeugenedev.alice;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.jeugenedev.alice.exception.NoServerException;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -11,12 +11,33 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AliceTest {
     private final int RESERVED_SERVER_PORT = 55855;
 
     @Test
-    public void aliceServerShouldRespondToPing() throws IOException, InterruptedException {
+    @Order(1)
+    public void serverShouldThrowException() {
+        Assertions.assertThrows(NoServerException.class, Alice::getInstance);
+    }
+
+    @Test
+    @Order(2)
+    public void serverShouldNotBeInitialized() {
+        Assertions.assertFalse(Alice.isInit());
+    }
+
+    @Test
+    @Order(3)
+    public void aliceServerShouldRespondToPingAndonStartAndOnStopShouldDependAndWorkOnChangingServerState() throws IOException, InterruptedException {
         Alice alice = Alice.getInstance(RESERVED_SERVER_PORT);
+        AtomicInteger thisData = new AtomicInteger(10);
+        AtomicInteger postData = new AtomicInteger(5);
+        alice.setOnStartListener(server -> {
+            Assertions.assertEquals(10, thisData.get());
+            thisData.set(postData.get());
+        });
+        alice.setOnStopListener(server -> Assertions.assertEquals(postData.get(), thisData.get()));
         alice.start();
         HttpClient client = HttpClient.newBuilder().build();
         HttpResponse<String> response = client
@@ -27,20 +48,19 @@ public class AliceTest {
                         .build(), HttpResponse.BodyHandlers.ofString()
                 );
         Assertions.assertEquals("OK", response.body());
-        alice.stop(0);
+        alice.stop(10);
     }
 
     @Test
-    public void onStartAndOnStopShouldDependAndWorkOnChangingServerState() throws IOException {
-        Alice alice = Alice.getInstance(RESERVED_SERVER_PORT);
-        AtomicInteger thisData = new AtomicInteger(10);
-        AtomicInteger postData = new AtomicInteger(5);
-        alice.setOnStartListener(server -> {
-            Assertions.assertEquals(10, thisData.get());
-            thisData.set(postData.get());
-            server.stop(10);
-        });
-        alice.setOnStopListener(server -> Assertions.assertEquals(postData.get(), thisData.get()));
-        alice.start();
+    @Order(4)
+    public void serverMustHaveInitializedPort() {
+        Alice alice = Alice.getInstance();
+        Assertions.assertEquals(RESERVED_SERVER_PORT, alice.getServer().getAddress().getPort());
+    }
+
+    @Test
+    @Order(5)
+    public void serverShouldBeInitialized() {
+        Assertions.assertTrue(Alice.isInit());
     }
 }

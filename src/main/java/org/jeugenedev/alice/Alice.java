@@ -2,6 +2,7 @@ package org.jeugenedev.alice;
 
 import com.sun.net.httpserver.HttpServer;
 import org.jeugenedev.alice.core.server.Initializer;
+import org.jeugenedev.alice.exception.NoServerException;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
@@ -22,11 +23,22 @@ public final class Alice {
 
     private static Alice instance;
 
+    public static Alice getInstance() {
+        if(instance == null) {
+            throw new NoServerException();
+        }
+        return instance;
+    }
+
     public static Alice getInstance(int serverPort) throws IOException {
         if(instance == null) {
             instance = new Alice(serverPort);
         }
         return instance;
+    }
+
+    public static boolean isInit() {
+        return instance != null;
     }
 
     private Alice(int serverPort) throws IOException {
@@ -68,6 +80,10 @@ public final class Alice {
 
     public Logger getServerLogger() {
         return serverLogger;
+    }
+
+    public HttpServer getServer() {
+        return server;
     }
 
     interface OnStartListener {
