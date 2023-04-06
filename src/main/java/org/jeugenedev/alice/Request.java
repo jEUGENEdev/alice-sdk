@@ -1,7 +1,10 @@
 package org.jeugenedev.alice;
 
-import org.jeugenedev.alice.core.server.request.Listenable;
+import org.jeugenedev.alice.core.server.request.ServerRequest;
+import org.jeugenedev.alice.core.server.response.ServerResponse;
+
+import java.io.IOException;
 
 public interface Request {
-    void request(Listenable listenable);
+    ServerResponse request(ServerRequest serverRequest) throws IOException;
 }

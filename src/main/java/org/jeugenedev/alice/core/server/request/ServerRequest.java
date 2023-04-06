@@ -2,7 +2,7 @@ package org.jeugenedev.alice.core.server.request;
 
 import org.jeugenedev.alice.core.entity.request.*;
 
-public class ServerRequest implements Listenable {
+public class ServerRequest {
     private Meta meta;
     private Request request;
     private Session session;
@@ -32,7 +32,13 @@ public class ServerRequest implements Listenable {
     }
 
     @Override
-    public ServerRequest listen() {
-        return null;
+    public String toString() {
+        return "ServerRequest{" +
+                "meta=" + meta +
+                ", request=" + request +
+                ", session=" + session +
+                ", state=" + state +
+                ", version='" + version + '\'' +
+                '}';
     }
 }
