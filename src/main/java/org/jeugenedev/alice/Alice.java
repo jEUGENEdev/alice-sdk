@@ -1,13 +1,17 @@
 package org.jeugenedev.alice;
 
+import ch.qos.logback.classic.Logger;
 import com.sun.net.httpserver.HttpServer;
+import org.apache.commons.net.util.SubnetUtils;
 import org.jeugenedev.alice.core.server.Initializer;
 import org.jeugenedev.alice.exception.NoServerException;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Logger;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * ВАЖНО! Listeners на остановку и запуск сервера должны срабатывать после соответствующего события!
@@ -20,6 +24,8 @@ public final class Alice {
     private OnStartListener onStartListener = server -> {};
     private OnStopListener onStopListener = server -> {};
     private final Logger serverLogger = (Logger) LoggerFactory.getLogger("Alice Server");
+    private boolean onlyYandex;
+    private List<String> remoteIps;
 
     private static Alice instance;
 
@@ -55,6 +61,7 @@ public final class Alice {
                 ╚═╝░░╚═╝╚══════╝╚═╝░╚════╝░╚══════╝░░░░░░╚═════╝░╚═════╝░╚═╝░░╚═╝""");
         this.server = HttpServer.create(new InetSocketAddress("127.0.0.1", serverPort), 0);
         Initializer.addDefaultContext(this.server);
+        Initializer.registerListenRequest(this.server);
     }
 
     public void start() {
@@ -84,6 +91,32 @@ public final class Alice {
 
     public HttpServer getServer() {
         return server;
+    }
+
+    public boolean isYandexIp(String ip) {
+        if(this.remoteIps == null) {
+            this.remoteIps = new ArrayList<>();
+            try(Scanner scanner = new Scanner(getClass().getClassLoader().getResourceAsStream("/yandex.ips"))) {
+                while(scanner.hasNextLine()) {
+                    this.remoteIps.add(scanner.nextLine());
+                }
+            }
+        }
+        for(String addr : this.remoteIps) {
+            SubnetUtils subnet = new SubnetUtils(addr);
+            if(subnet.getInfo().isInRange(ip)) return true;
+        }
+        return false;
+    }
+
+    public Alice onlyYandexServers() {
+        // https://yandex.ru/ips
+        this.onlyYandex = true;
+        return this;
+    }
+
+    public boolean isOnlyYandex() {
+        return this.onlyYandex;
     }
 
     interface OnStartListener {
