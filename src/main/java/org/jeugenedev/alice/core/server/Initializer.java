@@ -2,10 +2,14 @@ package org.jeugenedev.alice.core.server;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.jeugenedev.alice.Alice;
+import org.jeugenedev.alice.Request;
+import org.jeugenedev.alice.RequestManager;
 import org.jeugenedev.alice.core.server.request.ServerRequest;
+import org.jeugenedev.alice.core.server.response.ServerResponse;
 import org.jeugenedev.alice.exception.AliceDeniedException;
 
 import java.nio.charset.StandardCharsets;
@@ -13,10 +17,13 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public final class Initializer {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper requestMapper = new ObjectMapper();
+    private static final ObjectMapper responseMapper = new ObjectMapper();
 
     static {
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        requestMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        responseMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     }
 
     private Initializer() {}
@@ -40,12 +47,21 @@ public final class Initializer {
             try(Scanner input = new Scanner(exchange.getRequestBody(), StandardCharsets.UTF_8)) {
                 need(server, Alice.getInstance(), exchange);
                 String data = input.useDelimiter("\\A").next();
-                ServerRequest serverRequest = objectMapper.readValue(data, ServerRequest.class);
-                exchange.sendResponseHeaders(204, -1);
+                Request request = RequestManager.getRequestListener();
+                ServerRequest serverRequest = requestMapper.readValue(data, ServerRequest.class);
+                ServerResponse serverResponse = request.request(serverRequest);
+                String response = responseMapper.writeValueAsString(serverResponse);
+                exchange.setAttribute("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, response.length());
+                exchange.getResponseBody().write(response.getBytes(StandardCharsets.UTF_8));
             } catch(NoSuchElementException e) {
                 exchange.sendResponseHeaders(400, -1);
+                throw new RuntimeException(e);
             } catch(AliceDeniedException e1) {
                 exchange.sendResponseHeaders(403, -1);
+                throw new RuntimeException(e1);
+            } catch(Exception main) {
+                throw new RuntimeException(main);
             }
         });
     }

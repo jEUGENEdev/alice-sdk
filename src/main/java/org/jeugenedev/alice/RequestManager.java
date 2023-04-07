@@ -1,7 +1,9 @@
 package org.jeugenedev.alice;
 
+import org.jeugenedev.alice.core.server.response.ServerResponse;
+
 public final class RequestManager {
-    private static Request requestListener = request -> null;
+    private static Request requestListener = request -> new ServerResponse();
 
     private RequestManager() {}
 
