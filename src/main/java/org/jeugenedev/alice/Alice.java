@@ -119,11 +119,11 @@ public final class Alice {
         return this.onlyYandex;
     }
 
-    interface OnStartListener {
+    public interface OnStartListener {
         void start(HttpServer server);
     }
 
-    interface OnStopListener {
+    public interface OnStopListener {
         void stop(HttpServer server);
     }
 }
