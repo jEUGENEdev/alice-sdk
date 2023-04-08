@@ -93,5 +93,29 @@ public class Card {
     static class Footer {
         private String text;
         private Button button;
+
+        public Footer() {
+        }
+
+        public Footer(String text, Button button) {
+            this.text = text;
+            this.button = button;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public Button getButton() {
+            return button;
+        }
+
+        @Override
+        public String toString() {
+            return "Footer{" +
+                    "text='" + text + '\'' +
+                    ", button=" + button +
+                    '}';
+        }
     }
 }
