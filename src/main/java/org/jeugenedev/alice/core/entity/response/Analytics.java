@@ -42,7 +42,7 @@ public class Analytics {
         }
 
         public String getValue() {
-            return value.toString();
+            return value == null ? null : value.toString();
         }
 
         @Override
