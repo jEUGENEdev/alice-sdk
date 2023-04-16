@@ -24,7 +24,7 @@ public final class Alice {
     private OnStartListener onStartListener = server -> {};
     private OnStopListener onStopListener = server -> {};
     private final Logger serverLogger = (Logger) LoggerFactory.getLogger("Alice Server");
-    private boolean onlyYandex;
+    private boolean onlyYandex, loggingRequests;
     private List<String> remoteIps;
 
     private static Alice instance;
@@ -117,6 +117,15 @@ public final class Alice {
 
     public boolean isOnlyYandex() {
         return this.onlyYandex;
+    }
+
+    public Alice loggingRequests() {
+        this.loggingRequests = true;
+        return this;
+    }
+
+    public boolean isLoggingRequests() {
+        return loggingRequests;
     }
 
     public interface OnStartListener {

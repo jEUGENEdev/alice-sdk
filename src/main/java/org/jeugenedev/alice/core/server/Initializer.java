@@ -38,15 +38,16 @@ public final class Initializer {
         });
     }
 
-    private static void need(HttpServer server, Alice alice, HttpExchange exchange) {
+    private static void need(HttpServer server, Alice alice, HttpExchange exchange, String data) {
         if(alice.isOnlyYandex() && alice.isYandexIp(exchange.getRemoteAddress().getHostName())) throw new AliceDeniedException();
+        if(alice.isLoggingRequests()) alice.getServerLogger().info(String.join(": ", exchange.getRemoteAddress().getHostName(), data));
     }
 
     public static void registerListenRequest(HttpServer server) {
         server.createContext("/", exchange -> {
             try(Scanner input = new Scanner(exchange.getRequestBody(), StandardCharsets.UTF_8)) {
-                need(server, Alice.getInstance(), exchange);
                 String data = input.useDelimiter("\\A").next();
+                need(server, Alice.getInstance(), exchange, data);
                 Request request = RequestManager.getRequestListener();
                 ServerRequest serverRequest = requestMapper.readValue(data, ServerRequest.class);
                 ServerResponse serverResponse = request.request(serverRequest);
@@ -61,6 +62,7 @@ public final class Initializer {
                 exchange.sendResponseHeaders(403, -1);
                 throw new RuntimeException(e1);
             } catch(Exception main) {
+                exchange.sendResponseHeaders(500, -1);
                 throw new RuntimeException(main);
             }
         });
