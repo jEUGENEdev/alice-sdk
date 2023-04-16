@@ -1,34 +1,28 @@
 package org.jeugenedev.alice.core.entity.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
 
 public class Response {
-    private String text, tts, version;
+    private String text, tts;
     private List<Button> buttons;
     @JsonProperty("end_session") private boolean endSession;
-    private Analytics analytics;
-    @JsonProperty("session_state") private State sessionState;
-    @JsonProperty("user_state_update") private State userState;
-    @JsonProperty("application_state") private State applicationState;
     @JsonProperty("show_item_meta") private ItemMeta itemMeta;
+    private Card card;
+    private Directive directives;
 
     public Response() {
     }
 
-    public Response(String text, String tts, String version, List<Button> buttons, boolean endSession, Analytics analytics, State sessionState, State userState, State applicationState, ItemMeta itemMeta) {
+    public Response(String text, String tts, List<Button> buttons, boolean endSession, ItemMeta itemMeta, Card card, Directive directives) {
         this.text = text;
         this.tts = tts;
-        this.version = version;
         this.buttons = buttons;
         this.endSession = endSession;
-        this.analytics = analytics;
-        this.sessionState = sessionState;
-        this.userState = userState;
-        this.applicationState = applicationState;
         this.itemMeta = itemMeta;
+        this.card = card;
+        this.directives = directives;
     }
 
     public String getText() {
@@ -39,10 +33,6 @@ public class Response {
         return tts;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
     public List<Button> getButtons() {
         return buttons;
     }
@@ -51,24 +41,16 @@ public class Response {
         return endSession;
     }
 
-    public Analytics getAnalytics() {
-        return analytics;
-    }
-
-    public State getSessionState() {
-        return sessionState;
-    }
-
-    public State getUserState() {
-        return userState;
-    }
-
-    public State getApplicationState() {
-        return applicationState;
-    }
-
     public ItemMeta getItemMeta() {
         return itemMeta;
+    }
+
+    public Directive getDirectives() {
+        return directives;
+    }
+
+    public Card getCard() {
+        return card;
     }
 
     @Override
@@ -76,44 +58,12 @@ public class Response {
         return "Response{" +
                 "text='" + text + '\'' +
                 ", tts='" + tts + '\'' +
-                ", version='" + version + '\'' +
                 ", buttons=" + buttons +
                 ", endSession=" + endSession +
-                ", analytics=" + analytics +
-                ", sessionState=" + sessionState +
-                ", userState=" + userState +
-                ", applicationState=" + applicationState +
                 ", itemMeta=" + itemMeta +
+                ", card=" + card +
+                ", directives=" + directives +
                 '}';
-    }
-
-    static class State {
-        private String name;
-        private JsonNode value;
-
-        public State() {
-        }
-
-        public State(String name, JsonNode value) {
-            this.name = name;
-            this.value = value;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public JsonNode getValue() {
-            return value;
-        }
-
-        @Override
-        public String toString() {
-            return "State{" +
-                    "name='" + name + '\'' +
-                    ", value=" + value +
-                    '}';
-        }
     }
 
     static class ItemMeta {
