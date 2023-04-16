@@ -74,6 +74,9 @@ public class Card {
     static class Header {
         private String text;
 
+        public Header() {
+        }
+
         public Header(String text) {
             this.text = text;
         }
