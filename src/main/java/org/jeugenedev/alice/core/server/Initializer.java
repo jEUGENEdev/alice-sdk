@@ -51,10 +51,10 @@ public final class Initializer {
                 Request request = RequestManager.getRequestListener();
                 ServerRequest serverRequest = requestMapper.readValue(data, ServerRequest.class);
                 ServerResponse serverResponse = request.request(serverRequest);
-                String response = responseMapper.writeValueAsString(serverResponse);
-                exchange.setAttribute("Content-Type", "application/json");
-                exchange.sendResponseHeaders(200, response.length());
-                exchange.getResponseBody().write(response.getBytes(StandardCharsets.UTF_8));
+                byte[] response = responseMapper.writeValueAsString(serverResponse).getBytes(StandardCharsets.UTF_8);
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                exchange.sendResponseHeaders(200, response.length);
+                exchange.getResponseBody().write(response);
             } catch(NoSuchElementException e) {
                 exchange.sendResponseHeaders(400, -1);
                 throw new RuntimeException(e);
