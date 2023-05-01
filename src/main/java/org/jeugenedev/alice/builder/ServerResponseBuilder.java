@@ -3,11 +3,10 @@ package org.jeugenedev.alice.builder;
 import org.jeugenedev.alice.core.server.response.ServerResponse;
 
 public final class ServerResponseBuilder
-        implements Builder.SaveStatesResponseBuilder, Builder.Assembled<ServerResponse> {
-    private ServerResponse serverResponse;
+        implements Builder.SaveStatesResponseBuilder, Builder.PostServerResponseBuilder, Builder.Assembled<ServerResponse> {
     private String version;
     private boolean session, user, application;
-    private final ResponseBuilder response = new ResponseBuilder(this);
+    private ResponseBuilder response = new ResponseBuilder(this);
 
     private ServerResponseBuilder(String version) {
         this.version = version;
@@ -15,6 +14,10 @@ public final class ServerResponseBuilder
 
     public static Builder.SaveStatesResponseBuilder of(Version version) {
         return new ServerResponseBuilder(version.getVersion());
+    }
+
+    public static Builder.SaveStatesResponseBuilder ofDefault() {
+        return new ServerResponseBuilder(Version.VERSION_1_0.getVersion());
     }
 
     @Override
@@ -27,7 +30,7 @@ public final class ServerResponseBuilder
 
     @Override
     public ServerResponse assemble() {
-        return serverResponse;
+        return new ServerResponse(version, response.assemble(), null, null, null, null);
     }
 
     public enum Version {
