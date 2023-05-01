@@ -12,6 +12,8 @@ import org.jeugenedev.alice.core.server.request.ServerRequest;
 import org.jeugenedev.alice.core.server.response.ServerResponse;
 import org.jeugenedev.alice.exception.AliceDeniedException;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -63,7 +65,11 @@ public final class Initializer {
                 throw new RuntimeException(e1);
             } catch(Exception main) {
                 exchange.sendResponseHeaders(500, -1);
-                throw new RuntimeException(main);
+                StringWriter writer = new StringWriter();
+                PrintWriter printWriter = new PrintWriter(writer);
+                main.printStackTrace(printWriter);
+                Alice.getInstance().getServerLogger().error(writer.toString());
+                printWriter.close();
             }
         });
     }
